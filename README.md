@@ -69,3 +69,7 @@ Custom exceptions defined across modules:
 - `MaxCourseLimitError`, `DuplicateEnrollmentError`, `InvalidCreditError`
 - `NegativeFeeError`
 - `MissingFileOrFolderError`, `InvalidFileFormatError`, `EmptyDirectoryError`
+
+Live web link: [https://smart-campus-system-for-dsce.streamlit.app/](url)
+
+
