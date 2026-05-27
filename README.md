@@ -9,9 +9,9 @@ A Streamlit-based web dashboard integrating all 8 lab experiments into one compl
 
 ```
 smart_campus/
-├── app.py                        # Main Streamlit application (Lab 9 entry point)
+├── app.py                        # Main Streamlit application
 ├── requirements.txt              # Python dependencies
-├── data/                         # Auto-created CSV storage
+├── data/                         # Auto-created CSV storag
 │   ├── students.csv
 │   ├── courses.csv
 │   ├── academic_records.csv
@@ -20,12 +20,12 @@ smart_campus/
 └── modules/
     ├── __init__.py
     ├── data_store.py             # CSV/JSON read-write helpers
-    ├── student_registration.py   # Lab 1 — Grade evaluation, Student OOP model
-    ├── course_enrollment.py      # Lab 2 — Loop/continue/break enrollment logic
-    ├── search_sort.py            # Lab 4 — Bubble sort, Selection sort, Linear/Binary search
-    ├── fee_calculation.py        # Lab 5 — Fee functions with optional parameters
-    ├── file_manager.py           # Lab 6+7 — File I/O, directory scanner, custom exceptions
-    └── analytics.py              # Lab 8 — NumPy, Pandas, Matplotlib charts
+    ├── student_registration.py   # Grade evaluation, Student OOP model
+    ├── course_enrollment.py      # Loop/continue/break enrollment logic
+    ├── search_sort.py            # Bubble sort, Selection sort, Linear/Binary search
+    ├── fee_calculation.py        # Fee functions with optional parameters
+    ├── file_manager.py           # File I/O, directory scanner, custom exceptions
+    └── analytics.py              # NumPy, Pandas, Matplotlib charts
 ```
 
 ---
