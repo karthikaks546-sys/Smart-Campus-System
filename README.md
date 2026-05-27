@@ -44,24 +44,6 @@ streamlit run app.py
 
 The app opens at **http://localhost:8501**
 
----
-
-## 📋 Lab-to-Module Mapping
-
-| Lab | Topic | Module |
-|-----|-------|--------|
-| Lab 1 | Student Registration & Grade Evaluation | `student_registration.py` |
-| Lab 2 | Course Enrollment (loops, continue, break) | `course_enrollment.py` |
-| Lab 3 | Data Structures (lists, dicts, sets) | `data_store.py` + Analytics page |
-| Lab 4 | Sorting & Searching | `search_sort.py` |
-| Lab 5 | Fee Calculation (functions) | `fee_calculation.py` |
-| Lab 6 | File Handling (read/write/report) | `file_manager.py` |
-| Lab 7 | Directory Scanning + Exceptions | `file_manager.py` |
-| Lab 8 | Performance Analytics (NumPy/Pandas/Matplotlib) | `analytics.py` |
-| **Lab 9** | **Smart Campus System (Full Integration)** | **`app.py`** |
-
----
-
 ## 🖥️ Dashboard Pages
 
 - **🏠 Dashboard** — Summary cards, recent entries, performance snapshot
