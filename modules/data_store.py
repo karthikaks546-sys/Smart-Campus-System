@@ -142,6 +142,10 @@ def delete_course(course_id: str):
     write_csv(COURSES_FILE, rows, COURSE_FIELDS)
 
 
+def course_exists(course_id: str) -> bool:
+    return any(c["course_id"] == course_id for c in get_courses())
+
+
 # ── Academic Records ──────────────────────────────────────────────────────────
 def get_records() -> list[dict]:
     return read_csv(RECORDS_FILE, RECORD_FIELDS)
