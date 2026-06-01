@@ -25,6 +25,7 @@ from modules.course_enrollment import (
 from modules.fee_calculation import FeeRecord, calculate_fee, NegativeFeeError
 from modules.file_manager import (
     scan_directory, parse_uploaded_records_csv, parse_uploaded_students_csv,
+    parse_uploaded_courses_csv, parse_uploaded_fees_csv,
     MissingFileOrFolderError, InvalidFileFormatError
 )
 from modules.auth import hash_password, verify_password
@@ -648,7 +649,7 @@ elif current == "files":
     # ── Import ─────────────────────────────────────────────────────────────────
     with tab1:
         import_type = st.radio("Import type",
-                                ["Student Records (scores)", "Students (registration)"],
+                                ["Student Records (scores)", "Students (registration)", "Courses", "Fees"],
                                 horizontal=True)
         uploaded = st.file_uploader("Upload CSV", type=["csv"])
 
@@ -658,21 +659,26 @@ elif current == "files":
                 tmp_path = tmp.name
             try:
                 with open(tmp_path, "r", newline="") as f:
-                    detected_headers = [h.strip() for h in (csv.DictReader(f).fieldnames or [])]
+                    detected_headers = [h.strip() for h in (csv.DictReader(f).fieldnames or []) if h]
 
-                record_headers = {"student_id", "math", "science", "english"}
+                normalized_headers = {h.lower().replace(" ", "_") for h in detected_headers}
+                course_headers = {"course_id", "course_name", "credits", "instructor"}
+                fee_headers = {"student_id", "tuition_fee"}
                 student_headers = {"student_id", "name", "age"}
-                if record_headers.issubset(set(detected_headers)):
-                    active_import = "Student Records"
-                elif student_headers.issubset(set(detected_headers)):
-                    active_import = "Students"
-                else:
-                    active_import = "Student Records" if import_type.startswith("Student Records") else "Students"
 
-                if active_import == "Students" and import_type.startswith("Student Records"):
-                    st.info("Detected student registration CSV format. Importing as Students.")
-                elif active_import == "Student Records" and import_type.startswith("Students"):
-                    st.info("Detected academic record CSV format. Importing as Student Records.")
+                if course_headers.issubset(normalized_headers):
+                    active_import = "Courses"
+                elif fee_headers.issubset(normalized_headers):
+                    active_import = "Fees"
+                elif student_headers.issubset(normalized_headers):
+                    active_import = "Students"
+                elif "student_id" in normalized_headers and len(normalized_headers) > 1:
+                    active_import = "Student Records"
+                else:
+                    active_import = import_type
+
+                if active_import != import_type:
+                    st.info(f"Detected {active_import} CSV format. Importing as {active_import}.")
 
                 if active_import == "Student Records":
                     rows = parse_uploaded_records_csv(tmp_path)
@@ -686,7 +692,7 @@ elif current == "files":
                         ds.add_record(row)
                         imported += 1
                     st.success(f"✅ Imported {imported} academic records.")
-                else:
+                elif active_import == "Students":
                     rows = parse_uploaded_students_csv(tmp_path)
                     added = 0
                     for row in rows:
@@ -695,6 +701,29 @@ elif current == "files":
                             added += 1
                     st.success(f"✅ Imported {added} new students "
                                f"({len(rows)-added} duplicates skipped).")
+                elif active_import == "Courses":
+                    rows = parse_uploaded_courses_csv(tmp_path)
+                    added = 0
+                    for row in rows:
+                        if not ds.course_exists(row["course_id"]):
+                            ds.add_course(row)
+                            added += 1
+                    st.success(f"✅ Imported {added} new courses "
+                               f"({len(rows)-added} duplicates skipped).")
+                elif active_import == "Fees":
+                    rows = parse_uploaded_fees_csv(tmp_path)
+                    added = 0
+                    for row in rows:
+                        if ds.student_exists(row["student_id"]):
+                            student = ds.get_student(row["student_id"])
+                            row["name"] = row.get("name", "").strip() or student.get("name", "")
+                        ds.save_fee(row)
+                        added += 1
+                    st.success(f"✅ Imported {added} fee records.")
+                else:
+                    raise InvalidFileFormatError(
+                        "Unable to detect import type. Please upload a supported CSV format.")
+
                 st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
             except (MissingFileOrFolderError, InvalidFileFormatError) as e:
                 st.error(f"Import Error: {e}")
@@ -706,11 +735,15 @@ elif current == "files":
         col1, col2 = st.columns(2)
         with col1:
             st.caption("Academic Records:")
-            st.code("student_id,math,science,english\nSTU001,85,90,78")
+            st.code("student_id,Maths,Chemistry,English\nSTU001,85,90,78")
             st.caption("Name is optional when the student is already registered.")
+            st.caption("Courses:")
+            st.code("course_id,course_name,credits,instructor\nC101,Maths,4,Dr. Rao")
         with col2:
             st.caption("Students:")
             st.code("student_id,name,age,email,contact\nSTU001,Priya,20,p@x.com,9876")
+            st.caption("Fees:")
+            st.code("student_id,name,tuition_fee,hostel_fee,transportation_fee,total_fee\nSTU001,Priya,50000,0,0,50000")
 
     # ── Export ─────────────────────────────────────────────────────────────────
     with tab2:
